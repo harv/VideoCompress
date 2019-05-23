@@ -8,11 +8,11 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
-#include "../include/libyuv/row.h"
+#include "libyuv/row.h"
 
 #include <string.h>  // For memcpy and memset.
 
-#include "../include/libyuv/basic_types.h"
+#include "libyuv/basic_types.h"
 
 #ifdef __cplusplus
 namespace libyuv {
@@ -2378,6 +2378,19 @@ void ARGBCopyAlphaRow_C(const uint8* src, uint8* dst, int width) {
   }
   if (width & 1) {
     dst[3] = src[3];
+  }
+}
+
+void ARGBExtractAlphaRow_C(const uint8* src_argb, uint8* dst_a, int width) {
+  int i;
+  for (i = 0; i < width - 1; i += 2) {
+    dst_a[0] = src_argb[3];
+    dst_a[1] = src_argb[7];
+    dst_a += 2;
+    src_argb += 8;
+  }
+  if (width & 1) {
+    dst_a[0] = src_argb[3];
   }
 }
 

@@ -8,16 +8,16 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
-#include "../include/libyuv/convert_from.h"
+#include "libyuv/convert_from.h"
 
-#include "../include/libyuv/basic_types.h"
-#include "../include/libyuv/convert.h"  // For I420Copy
-#include "../include/libyuv/cpu_id.h"
-#include "../include/libyuv/planar_functions.h"
-#include "../include/libyuv/rotate.h"
-#include "../include/libyuv/scale.h"  // For ScalePlane()
-#include "../include/libyuv/video_common.h"
-#include "../include/libyuv/row.h"
+#include "libyuv/basic_types.h"
+#include "libyuv/convert.h"  // For I420Copy
+#include "libyuv/cpu_id.h"
+#include "libyuv/planar_functions.h"
+#include "libyuv/rotate.h"
+#include "libyuv/scale.h"  // For ScalePlane()
+#include "libyuv/video_common.h"
+#include "libyuv/row.h"
 
 #ifdef __cplusplus
 namespace libyuv {
@@ -1077,7 +1077,6 @@ int ConvertFromI420(const uint8* y, int y_stride,
     // Triplanar formats
     // TODO(fbarchard): halfstride instead of halfwidth
     case FOURCC_I420:
-    case FOURCC_YU12:
     case FOURCC_YV12: {
       int halfwidth = (width + 1) / 2;
       int halfheight = (height + 1) / 2;

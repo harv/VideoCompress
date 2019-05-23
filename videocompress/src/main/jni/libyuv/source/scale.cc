@@ -8,15 +8,15 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
-#include "../include/libyuv/scale.h"
+#include "libyuv/scale.h"
 
 #include <assert.h>
 #include <string.h>
 
-#include "../include/libyuv/cpu_id.h"
-#include "../include/libyuv/planar_functions.h"  // For CopyPlane
-#include "../include/libyuv/row.h"
-#include "../include/libyuv/scale_row.h"
+#include "libyuv/cpu_id.h"
+#include "libyuv/planar_functions.h"  // For CopyPlane
+#include "libyuv/row.h"
+#include "libyuv/scale_row.h"
 
 #ifdef __cplusplus
 namespace libyuv {

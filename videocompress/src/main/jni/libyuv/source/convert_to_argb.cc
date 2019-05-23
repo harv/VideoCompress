@@ -8,15 +8,15 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
-#include "../include/libyuv/convert_argb.h"
+#include "libyuv/convert_argb.h"
 
-#include "../include/libyuv/cpu_id.h"
+#include "libyuv/cpu_id.h"
 #ifdef HAVE_JPEG
-#include "../include/libyuv/mjpeg_decoder.h"
+#include "libyuv/mjpeg_decoder.h"
 #endif
-#include "../include/libyuv/rotate_argb.h"
-#include "../include/libyuv/row.h"
-#include "../include/libyuv/video_common.h"
+#include "libyuv/rotate_argb.h"
+#include "libyuv/row.h"
+#include "libyuv/video_common.h"
 
 #ifdef __cplusplus
 namespace libyuv {
@@ -176,7 +176,6 @@ int ConvertToARGB(const uint8* sample, size_t sample_size,
       break;
     // Triplanar formats
     case FOURCC_I420:
-    case FOURCC_YU12:
     case FOURCC_YV12: {
       const uint8* src_y = sample + (src_width * crop_y + crop_x);
       const uint8* src_u;

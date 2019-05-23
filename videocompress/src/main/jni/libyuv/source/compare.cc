@@ -8,7 +8,7 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
-#include "../include/libyuv/compare.h"
+#include "libyuv/compare.h"
 
 #include <float.h>
 #include <math.h>
@@ -16,12 +16,11 @@
 #include <omp.h>
 #endif
 
-#include "../include/libyuv/basic_types.h"
-#include "../include/libyuv/compare_row.h"
-#include "../include/libyuv/cpu_id.h"
-#include "../include/libyuv/row.h"
-#include "../include/libyuv/video_common.h"
-#include "../include/libyuv/basic_types.h"
+#include "libyuv/basic_types.h"
+#include "libyuv/compare_row.h"
+#include "libyuv/cpu_id.h"
+#include "libyuv/row.h"
+#include "libyuv/video_common.h"
 
 #ifdef __cplusplus
 namespace libyuv {

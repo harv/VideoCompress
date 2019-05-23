@@ -8,12 +8,12 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
-#include "../include/libyuv/convert_from_argb.h"
+#include "libyuv/convert_from_argb.h"
 
-#include "../include/libyuv/basic_types.h"
-#include "../include/libyuv/cpu_id.h"
-#include "../include/libyuv/planar_functions.h"
-#include "../include/libyuv/row.h"
+#include "libyuv/basic_types.h"
+#include "libyuv/cpu_id.h"
+#include "libyuv/planar_functions.h"
+#include "libyuv/row.h"
 
 #ifdef __cplusplus
 namespace libyuv {

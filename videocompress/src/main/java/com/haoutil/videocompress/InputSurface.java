@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.yovenny.videocompress;
+package com.haoutil.videocompress;
 
 import android.annotation.TargetApi;
 import android.opengl.EGL14;
@@ -26,9 +26,9 @@ import android.opengl.EGLSurface;
 import android.os.Build;
 import android.view.Surface;
 
-@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
+@TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR1)
 public class InputSurface {
-    private static final boolean VERBOSE = false;
+
     private static final int EGL_RECORDABLE_ANDROID = 0x3142;
     private static final int EGL_OPENGL_ES2_BIT = 4;
     private EGLDisplay mEGLDisplay;
@@ -119,14 +119,14 @@ public class InputSurface {
         return mSurface;
     }
 
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
     public void setPresentationTime(long nsecs) {
         EGLExt.eglPresentationTimeANDROID(mEGLDisplay, mEGLSurface, nsecs);
     }
 
     private void checkEglError(String msg) {
         boolean failed = false;
-        int error;
-        while ((error = EGL14.eglGetError()) != EGL14.EGL_SUCCESS) {
+        while (EGL14.eglGetError() != EGL14.EGL_SUCCESS) {
             failed = true;
         }
         if (failed) {

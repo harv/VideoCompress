@@ -11,11 +11,11 @@
 #ifndef INCLUDE_LIBYUV_PLANAR_FUNCTIONS_H_  // NOLINT
 #define INCLUDE_LIBYUV_PLANAR_FUNCTIONS_H_
 
-#include "basic_types.h"
+#include "libyuv/basic_types.h"
 
 // TODO(fbarchard): Remove the following headers includes.
-#include "convert.h"
-#include "convert_argb.h"
+#include "libyuv/convert.h"
+#include "libyuv/convert_argb.h"
 
 #ifdef __cplusplus
 namespace libyuv {
@@ -287,6 +287,12 @@ LIBYUV_API
 int ARGBCopyAlpha(const uint8* src_argb, int src_stride_argb,
                   uint8* dst_argb, int dst_stride_argb,
                   int width, int height);
+
+// Extract the alpha channel from ARGB.
+LIBYUV_API
+int ARGBExtractAlpha(const uint8* src_argb, int src_stride_argb,
+                     uint8* dst_a, int dst_stride_a,
+                     int width, int height);
 
 // Copy Y channel to Alpha of ARGB.
 LIBYUV_API

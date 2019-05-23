@@ -8,10 +8,10 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
-#include "../include/libyuv/row.h"
-#include "../include/libyuv/rotate_row.h"
+#include "libyuv/row.h"
+#include "libyuv/rotate_row.h"
 
-#include "../include/libyuv/basic_types.h"
+#include "libyuv/basic_types.h"
 
 #ifdef __cplusplus
 namespace libyuv {
@@ -23,7 +23,7 @@ extern "C" {
     (_MIPS_SIM == _MIPS_SIM_ABI32)
 
 void TransposeWx8_DSPR2(const uint8* src, int src_stride,
-                             uint8* dst, int dst_stride, int width) {
+                        uint8* dst, int dst_stride, int width) {
    __asm__ __volatile__ (
       ".set push                                         \n"
       ".set noreorder                                    \n"
@@ -107,7 +107,7 @@ void TransposeWx8_DSPR2(const uint8* src, int src_stride,
 }
 
 void TransposeWx8_Fast_DSPR2(const uint8* src, int src_stride,
-                                  uint8* dst, int dst_stride, int width) {
+                             uint8* dst, int dst_stride, int width) {
   __asm__ __volatile__ (
       ".set noat                                         \n"
       ".set push                                         \n"
@@ -309,9 +309,9 @@ void TransposeWx8_Fast_DSPR2(const uint8* src, int src_stride,
 }
 
 void TransposeUVWx8_DSPR2(const uint8* src, int src_stride,
-                               uint8* dst_a, int dst_stride_a,
-                               uint8* dst_b, int dst_stride_b,
-                               int width) {
+                          uint8* dst_a, int dst_stride_a,
+                          uint8* dst_b, int dst_stride_b,
+                          int width) {
   __asm__ __volatile__ (
       ".set push                                         \n"
       ".set noreorder                                    \n"

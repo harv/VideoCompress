@@ -6,10 +6,10 @@
  * Copyright Nikolai Kudashov, 2013-2014.
  */
 
-package com.yovenny.videocompress;
+package com.haoutil.videocompress;
 
-import android.annotation.TargetApi;
 import android.media.MediaCodec;
+import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 
 import com.coremedia.iso.boxes.AbstractMediaHeaderBox;
@@ -27,29 +27,44 @@ import com.mp4parser.iso14496.part15.AvcConfigurationBox;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 
-@TargetApi(16)
 public class Track {
-    private long trackId = 0;
-    private ArrayList<Sample> samples = new ArrayList<Sample>();
+
+    private class SamplePresentationTime {
+
+        private int index;
+        private long presentationTime;
+        private long dt;
+
+        public SamplePresentationTime(int idx, long time) {
+            index = idx;
+            presentationTime = time;
+        }
+    }
+
+    private long trackId;
+    private ArrayList<Sample> samples = new ArrayList<>();
     private long duration = 0;
+    private int[] sampleCompositions;
     private String handler;
-    private AbstractMediaHeaderBox headerBox = null;
-    private SampleDescriptionBox sampleDescriptionBox = null;
+    private AbstractMediaHeaderBox headerBox;
+    private SampleDescriptionBox sampleDescriptionBox;
     private LinkedList<Integer> syncSamples = null;
     private int timeScale;
     private Date creationTime = new Date();
     private int height;
     private int width;
     private float volume = 0;
-    private ArrayList<Long> sampleDurations = new ArrayList<Long>();
-    private boolean isAudio = false;
-    private static Map<Integer, Integer> samplingFrequencyIndexMap = new HashMap<Integer, Integer>();
-    private long lastPresentationTimeUs = 0;
+    private long[] sampleDurations;
+    private ArrayList<SamplePresentationTime> samplePresentationTimes = new ArrayList<>();
+    private boolean isAudio;
+    private static Map<Integer, Integer> samplingFrequencyIndexMap = new HashMap<>();
     private boolean first = true;
 
     static {
@@ -67,15 +82,14 @@ public class Track {
         samplingFrequencyIndexMap.put(8000, 0xb);
     }
 
-    public Track(int id, MediaFormat format, boolean isAudio) throws Exception {
+    public Track(int id, MediaFormat format, boolean audio) {
         trackId = id;
+        isAudio = audio;
         if (!isAudio) {
-            sampleDurations.add((long)3015);
-            duration = 3015;
             width = format.getInteger(MediaFormat.KEY_WIDTH);
             height = format.getInteger(MediaFormat.KEY_HEIGHT);
             timeScale = 90000;
-            syncSamples = new LinkedList<Integer>();
+            syncSamples = new LinkedList<>();
             handler = "vide";
             headerBox = new VideoMediaHeaderBox();
             sampleDescriptionBox = new SampleDescriptionBox();
@@ -93,14 +107,14 @@ public class Track {
                 AvcConfigurationBox avcConfigurationBox = new AvcConfigurationBox();
 
                 if (format.getByteBuffer("csd-0") != null) {
-                    ArrayList<byte[]> spsArray = new ArrayList<byte[]>();
+                    ArrayList<byte[]> spsArray = new ArrayList<>();
                     ByteBuffer spsBuff = format.getByteBuffer("csd-0");
                     spsBuff.position(4);
                     byte[] spsBytes = new byte[spsBuff.remaining()];
                     spsBuff.get(spsBytes);
                     spsArray.add(spsBytes);
 
-                    ArrayList<byte[]> ppsArray = new ArrayList<byte[]>();
+                    ArrayList<byte[]> ppsArray = new ArrayList<>();
                     ByteBuffer ppsBuff = format.getByteBuffer("csd-1");
                     ppsBuff.position(4);
                     byte[] ppsBytes = new byte[ppsBuff.remaining()];
@@ -109,11 +123,67 @@ public class Track {
                     avcConfigurationBox.setSequenceParameterSets(spsArray);
                     avcConfigurationBox.setPictureParameterSets(ppsArray);
                 }
-                //ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(spsBytes);
-                //SeqParameterSet seqParameterSet = SeqParameterSet.read(byteArrayInputStream);
 
-                avcConfigurationBox.setAvcLevelIndication(13);
-                avcConfigurationBox.setAvcProfileIndication(100);
+                if (format.containsKey("level")) {
+                    int level = format.getInteger("level");
+                    if (level == MediaCodecInfo.CodecProfileLevel.AVCLevel1) {
+                        avcConfigurationBox.setAvcLevelIndication(1);
+                    } else if (level == MediaCodecInfo.CodecProfileLevel.AVCLevel2) {
+                        avcConfigurationBox.setAvcLevelIndication(2);
+                    } else if (level == MediaCodecInfo.CodecProfileLevel.AVCLevel11) {
+                        avcConfigurationBox.setAvcLevelIndication(11);
+                    } else if (level == MediaCodecInfo.CodecProfileLevel.AVCLevel12) {
+                        avcConfigurationBox.setAvcLevelIndication(12);
+                    } else if (level == MediaCodecInfo.CodecProfileLevel.AVCLevel13) {
+                        avcConfigurationBox.setAvcLevelIndication(13);
+                    } else if (level == MediaCodecInfo.CodecProfileLevel.AVCLevel21) {
+                        avcConfigurationBox.setAvcLevelIndication(21);
+                    } else if (level == MediaCodecInfo.CodecProfileLevel.AVCLevel22) {
+                        avcConfigurationBox.setAvcLevelIndication(22);
+                    } else if (level == MediaCodecInfo.CodecProfileLevel.AVCLevel3) {
+                        avcConfigurationBox.setAvcLevelIndication(3);
+                    } else if (level == MediaCodecInfo.CodecProfileLevel.AVCLevel31) {
+                        avcConfigurationBox.setAvcLevelIndication(31);
+                    } else if (level == MediaCodecInfo.CodecProfileLevel.AVCLevel32) {
+                        avcConfigurationBox.setAvcLevelIndication(32);
+                    } else if (level == MediaCodecInfo.CodecProfileLevel.AVCLevel4) {
+                        avcConfigurationBox.setAvcLevelIndication(4);
+                    } else if (level == MediaCodecInfo.CodecProfileLevel.AVCLevel41) {
+                        avcConfigurationBox.setAvcLevelIndication(41);
+                    } else if (level == MediaCodecInfo.CodecProfileLevel.AVCLevel42) {
+                        avcConfigurationBox.setAvcLevelIndication(42);
+                    } else if (level == MediaCodecInfo.CodecProfileLevel.AVCLevel5) {
+                        avcConfigurationBox.setAvcLevelIndication(5);
+                    } else if (level == MediaCodecInfo.CodecProfileLevel.AVCLevel51) {
+                        avcConfigurationBox.setAvcLevelIndication(51);
+                    } else if (level == MediaCodecInfo.CodecProfileLevel.AVCLevel52) {
+                        avcConfigurationBox.setAvcLevelIndication(52);
+                    } else if (level == MediaCodecInfo.CodecProfileLevel.AVCLevel1b) {
+                        avcConfigurationBox.setAvcLevelIndication(0x1b);
+                    }
+                } else {
+                    avcConfigurationBox.setAvcLevelIndication(13);
+                }
+                if (format.containsKey("profile")) {
+                    int profile = format.getInteger("profile");
+                    if (profile == MediaCodecInfo.CodecProfileLevel.AVCProfileBaseline) {
+                        avcConfigurationBox.setAvcProfileIndication(66);
+                    } else if (profile == MediaCodecInfo.CodecProfileLevel.AVCProfileMain) {
+                        avcConfigurationBox.setAvcProfileIndication(77);
+                    } else if (profile == MediaCodecInfo.CodecProfileLevel.AVCProfileExtended) {
+                        avcConfigurationBox.setAvcProfileIndication(88);
+                    } else if (profile == MediaCodecInfo.CodecProfileLevel.AVCProfileHigh) {
+                        avcConfigurationBox.setAvcProfileIndication(100);
+                    } else if (profile == MediaCodecInfo.CodecProfileLevel.AVCProfileHigh10) {
+                        avcConfigurationBox.setAvcProfileIndication(110);
+                    } else if (profile == MediaCodecInfo.CodecProfileLevel.AVCProfileHigh422) {
+                        avcConfigurationBox.setAvcProfileIndication(122);
+                    } else if (profile == MediaCodecInfo.CodecProfileLevel.AVCProfileHigh444) {
+                        avcConfigurationBox.setAvcProfileIndication(244);
+                    }
+                } else {
+                    avcConfigurationBox.setAvcProfileIndication(100);
+                }
                 avcConfigurationBox.setBitDepthLumaMinus8(-1);
                 avcConfigurationBox.setBitDepthChromaMinus8(-1);
                 avcConfigurationBox.setChromaFormat(-1);
@@ -136,9 +206,6 @@ public class Track {
                 sampleDescriptionBox.addBox(visualSampleEntry);
             }
         } else {
-            sampleDurations.add((long)1024);
-            duration = 1024;
-            isAudio = true;
             volume = 1;
             timeScale = format.getInteger(MediaFormat.KEY_SAMPLE_RATE);
             handler = "soun";
@@ -162,12 +229,16 @@ public class Track {
             decoderConfigDescriptor.setObjectTypeIndication(0x40);
             decoderConfigDescriptor.setStreamType(5);
             decoderConfigDescriptor.setBufferSizeDB(1536);
-            decoderConfigDescriptor.setMaxBitRate(96000);
-            decoderConfigDescriptor.setAvgBitRate(96000);
+            if (format.containsKey("max-bitrate")) {
+                decoderConfigDescriptor.setMaxBitRate(format.getInteger("max-bitrate"));
+            } else {
+                decoderConfigDescriptor.setMaxBitRate(96000);
+            }
+            decoderConfigDescriptor.setAvgBitRate(timeScale);
 
             AudioSpecificConfig audioSpecificConfig = new AudioSpecificConfig();
             audioSpecificConfig.setAudioObjectType(2);
-            audioSpecificConfig.setSamplingFrequencyIndex(samplingFrequencyIndexMap.get((int)audioSampleEntry.getSampleRate()));
+            audioSpecificConfig.setSamplingFrequencyIndex(samplingFrequencyIndexMap.get((int) audioSampleEntry.getSampleRate()));
             audioSpecificConfig.setChannelConfiguration(audioSampleEntry.getChannelCount());
             decoderConfigDescriptor.setAudioSpecificInfo(audioSpecificConfig);
 
@@ -191,15 +262,59 @@ public class Track {
         if (syncSamples != null && isSyncFrame) {
             syncSamples.add(samples.size());
         }
+        samplePresentationTimes.add(new SamplePresentationTime(samplePresentationTimes.size(), (bufferInfo.presentationTimeUs * timeScale + 500000L) / 1000000L));
+    }
 
-        long delta = bufferInfo.presentationTimeUs - lastPresentationTimeUs;
-        lastPresentationTimeUs = bufferInfo.presentationTimeUs;
-        delta = (delta * timeScale + 500000L) / 1000000L;
-        if (!first) {
-            sampleDurations.add(sampleDurations.size() - 1, delta);
-            duration += delta;
+    public void prepare() {
+        ArrayList<SamplePresentationTime> original = new ArrayList<>(samplePresentationTimes);
+        Collections.sort(samplePresentationTimes, new Comparator<SamplePresentationTime>() {
+            @Override
+            public int compare(SamplePresentationTime o1, SamplePresentationTime o2) {
+                if (o1.presentationTime > o2.presentationTime) {
+                    return 1;
+                } else if (o1.presentationTime < o2.presentationTime) {
+                    return -1;
+                }
+                return 0;
+            }
+        });
+        long lastPresentationTimeUs = 0;
+        sampleDurations = new long[samplePresentationTimes.size()];
+        long minDelta = Long.MAX_VALUE;
+        boolean outOfOrder = false;
+        for (int a = 0; a < samplePresentationTimes.size(); a++) {
+            SamplePresentationTime presentationTime = samplePresentationTimes.get(a);
+            long delta = presentationTime.presentationTime - lastPresentationTimeUs;
+            lastPresentationTimeUs = presentationTime.presentationTime;
+            sampleDurations[presentationTime.index] = delta;
+            if (presentationTime.index != 0) {
+                duration += delta;
+            }
+            if (delta != 0) {
+                minDelta = Math.min(minDelta, delta);
+            }
+            if (presentationTime.index != a) {
+                outOfOrder = true;
+            }
         }
-        first = false;
+        if (sampleDurations.length > 0) {
+            sampleDurations[0] = minDelta;
+            duration += minDelta;
+        }
+        for (int a = 1; a < original.size(); a++) {
+            original.get(a).dt = sampleDurations[a] + original.get(a - 1).dt;
+        }
+        if (outOfOrder) {
+            sampleCompositions = new int[samplePresentationTimes.size()];
+            for (int a = 0; a < samplePresentationTimes.size(); a++) {
+                SamplePresentationTime presentationTime = samplePresentationTimes.get(a);
+                sampleCompositions[presentationTime.index] = (int) (presentationTime.presentationTime - presentationTime.dt);
+            }
+        }
+        //if (!first) {
+        //    sampleDurations.add(sampleDurations.size() - 1, delta);
+        //    duration += delta;
+        //}
     }
 
     public ArrayList<Sample> getSamples() {
@@ -216,6 +331,10 @@ public class Track {
 
     public AbstractMediaHeaderBox getMediaHeaderBox() {
         return headerBox;
+    }
+
+    public int[] getSampleCompositions() {
+        return sampleCompositions;
     }
 
     public SampleDescriptionBox getSampleDescriptionBox() {
@@ -253,7 +372,7 @@ public class Track {
         return volume;
     }
 
-    public ArrayList<Long> getSampleDurations() {
+    public long[] getSampleDurations() {
         return sampleDurations;
     }
 

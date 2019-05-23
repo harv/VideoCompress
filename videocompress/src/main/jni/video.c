@@ -1,6 +1,5 @@
 #include <jni.h>
 #include "libyuv/include/libyuv.h"
-#include <utils.h>
 
 enum COLOR_FORMATTYPE {
     COLOR_FormatMonochrome              = 1,
@@ -52,7 +51,7 @@ enum COLOR_FORMATTYPE {
     COLOR_QCOM_FormatYUV420SemiPlanar     = 0x7fa30c00
 };
 
-int isSemiPlanarYUV(int colorFormat) {
+jint isSemiPlanarYUV(jint colorFormat) {
     switch (colorFormat) {
         case COLOR_FormatYUV420Planar:
         case COLOR_FormatYUV420PackedPlanar:
@@ -66,46 +65,44 @@ int isSemiPlanarYUV(int colorFormat) {
     }
 }
 
-JNIEXPORT int Java_com_yovenny_videocompress_CovertUtil_convertVideoFrame(JNIEnv *env, jclass class, jobject src, jobject dest, int destFormat, int width, int height, int padding, int swap) {
+JNIEXPORT int Java_com_haoutil_videocompress_Utilities_convertVideoFrame(JNIEnv *env, jclass class, jobject src, jobject dest, int destFormat, int width, int height, int padding, int swap) {
     if (!src || !dest || !destFormat) {
         return 0;
     }
-    
+
     jbyte *srcBuff = (*env)->GetDirectBufferAddress(env, src);
     jbyte *destBuff = (*env)->GetDirectBufferAddress(env, dest);
 
     int half_width = (width + 1) / 2;
     int half_height = (height + 1) / 2;
-    
+
     if (!isSemiPlanarYUV(destFormat)) {
         if (!swap) {
-            ARGBToI420(srcBuff, width * 4,
-                       destBuff, width,
-                       destBuff + width * height + half_width * half_height + padding * 5 / 4, half_width,
-                       destBuff + width * height + padding, half_width,
+            ARGBToI420((uint8_t *) srcBuff, width * 4,
+                       (uint8_t *) destBuff, width,
+                       (uint8_t *) (destBuff + width * height + half_width * half_height + padding * 5 / 4), half_width,
+                       (uint8_t *) (destBuff + width * height + padding), half_width,
                        width, height);
         } else {
-            ARGBToI420(srcBuff, width * 4,
-                       destBuff, width,
-                       destBuff + width * height + padding, half_width,
-                       destBuff + width * height + half_width * half_height + padding * 5 / 4, half_width,
+            ARGBToI420((uint8_t *) srcBuff, width * 4,
+                       (uint8_t *) destBuff, width,
+                       (uint8_t *) (destBuff + width * height + padding), half_width,
+                       (uint8_t *) (destBuff + width * height + half_width * half_height + padding * 5 / 4), half_width,
                        width, height);
         }
     } else {
         if (!swap) {
-            ARGBToNV21(srcBuff, width * 4,
-                       destBuff, width,
-                       destBuff + width * height + padding, half_width * 2,
+            ARGBToNV21((uint8_t *) srcBuff, width * 4,
+                       (uint8_t *) destBuff, width,
+                       (uint8_t *) (destBuff + width * height + padding), half_width * 2,
                        width, height);
         } else {
-            ARGBToNV12(srcBuff, width * 4,
-                       destBuff, width,
-                       destBuff + width * height + padding, half_width * 2,
+            ARGBToNV12((uint8_t *) srcBuff, width * 4,
+                       (uint8_t *) destBuff, width,
+                       (uint8_t *) (destBuff + width * height + padding), half_width * 2,
                        width, height);
         }
     }
-    
+
     return 1;
 }
-
-

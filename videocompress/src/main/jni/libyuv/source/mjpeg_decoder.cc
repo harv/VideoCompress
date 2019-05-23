@@ -8,7 +8,7 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
-#include "../include/libyuv/mjpeg_decoder.h"
+#include "libyuv/mjpeg_decoder.h"
 
 #ifdef HAVE_JPEG
 #include <assert.h>
@@ -38,7 +38,7 @@ extern "C" {
 }  // extern "C"
 #endif
 
-#include "../include/libyuv/planar_functions.h"  // For CopyPlane().
+#include "libyuv/planar_functions.h"  // For CopyPlane().
 
 namespace libyuv {
 

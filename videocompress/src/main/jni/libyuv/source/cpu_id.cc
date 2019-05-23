@@ -8,7 +8,7 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
-#include "../include/libyuv/cpu_id.h"
+#include "libyuv/cpu_id.h"
 
 #if defined(_MSC_VER)
 #include <intrin.h>  // For __cpuidex()
@@ -27,7 +27,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "../include/libyuv/basic_types.h"  // For CPU_X86
+#include "libyuv/basic_types.h"  // For CPU_X86
 
 #ifdef __cplusplus
 namespace libyuv {

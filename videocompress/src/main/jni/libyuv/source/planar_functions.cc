@@ -8,16 +8,16 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
-#include "../include/libyuv/planar_functions.h"
+#include "libyuv/planar_functions.h"
 
 #include <string.h>  // for memset()
 
-#include "../include/libyuv/cpu_id.h"
+#include "libyuv/cpu_id.h"
 #ifdef HAVE_JPEG
 #include "libyuv/mjpeg_decoder.h"
 #endif
-#include "../include/libyuv/row.h"
-#include "../include/libyuv/scale_row.h"  // for ScaleRowDown2
+#include "libyuv/row.h"
+#include "libyuv/scale_row.h"  // for ScaleRowDown2
 
 #ifdef __cplusplus
 namespace libyuv {
@@ -2370,6 +2370,49 @@ int ARGBCopyAlpha(const uint8* src_argb, int src_stride_argb,
     ARGBCopyAlphaRow(src_argb, dst_argb, width);
     src_argb += src_stride_argb;
     dst_argb += dst_stride_argb;
+  }
+  return 0;
+}
+
+// Extract just the alpha channel from ARGB.
+LIBYUV_API
+int ARGBExtractAlpha(const uint8* src_argb, int src_stride,
+                     uint8* dst_a, int dst_stride,
+                     int width, int height) {
+  if (!src_argb || !dst_a || width <= 0 || height == 0) {
+    return -1;
+  }
+  // Negative height means invert the image.
+  if (height < 0) {
+    height = -height;
+    src_argb += (height - 1) * src_stride;
+    src_stride = -src_stride;
+  }
+  // Coalesce rows.
+  if (src_stride == width * 4 && dst_stride == width) {
+    width *= height;
+    height = 1;
+    src_stride = dst_stride = 0;
+  }
+  void (*ARGBExtractAlphaRow)(const uint8 *src_argb, uint8 *dst_a, int width) =
+      ARGBExtractAlphaRow_C;
+#if defined(HAS_ARGBEXTRACTALPHAROW_SSE2)
+  if (TestCpuFlag(kCpuHasSSE2)) {
+    ARGBExtractAlphaRow = IS_ALIGNED(width, 8) ? ARGBExtractAlphaRow_SSE2
+                                               : ARGBExtractAlphaRow_Any_SSE2;
+  }
+#endif
+#if defined(HAS_ARGBEXTRACTALPHAROW_NEON)
+  if (TestCpuFlag(kCpuHasNEON)) {
+    ARGBExtractAlphaRow = IS_ALIGNED(width, 16) ? ARGBExtractAlphaRow_NEON
+                                                : ARGBExtractAlphaRow_Any_NEON;
+  }
+#endif
+
+  for (int y = 0; y < height; ++y) {
+    ARGBExtractAlphaRow(src_argb, dst_a, width);
+    src_argb += src_stride;
+    dst_a += dst_stride;
   }
   return 0;
 }

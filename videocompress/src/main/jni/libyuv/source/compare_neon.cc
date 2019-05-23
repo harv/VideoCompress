@@ -8,10 +8,10 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
-#include "../include/libyuv/basic_types.h"
+#include "libyuv/basic_types.h"
 
-#include "../include/libyuv/compare_row.h"
-#include "../include/libyuv/row.h"
+#include "libyuv/compare_row.h"
+#include "libyuv/row.h"
 
 #ifdef __cplusplus
 namespace libyuv {

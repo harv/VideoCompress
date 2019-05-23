@@ -11,8 +11,8 @@
 #ifndef INCLUDE_LIBYUV_CONVERT_FROM_H_  // NOLINT
 #define INCLUDE_LIBYUV_CONVERT_FROM_H_
 
-#include "basic_types.h"
-#include "rotate.h"
+#include "libyuv/basic_types.h"
+#include "libyuv/rotate.h"
 
 #ifdef __cplusplus
 namespace libyuv {
@@ -55,8 +55,6 @@ LIBYUV_API
 int I400Copy(const uint8* src_y, int src_stride_y,
              uint8* dst_y, int dst_stride_y,
              int width, int height);
-
-// TODO(fbarchard): I420ToM420
 
 LIBYUV_API
 int I420ToNV12(const uint8* src_y, int src_stride_y,

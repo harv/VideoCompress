@@ -11,11 +11,9 @@
 #ifndef INCLUDE_LIBYUV_CONVERT_H_  // NOLINT
 #define INCLUDE_LIBYUV_CONVERT_H_
 
-#include "basic_types.h"
-// TODO(fbarchard): Remove the following headers includes.
-#include "convert_from.h"
-#include "planar_functions.h"
-#include "rotate.h"
+#include "libyuv/basic_types.h"
+
+#include "libyuv/rotate.h"  // For enum RotationMode.
 
 #ifdef __cplusplus
 namespace libyuv {

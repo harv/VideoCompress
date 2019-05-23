@@ -8,7 +8,7 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
-#include "../include/libyuv/mjpeg_decoder.h"
+#include "libyuv/mjpeg_decoder.h"
 
 #include <string.h>  // For memchr.
 

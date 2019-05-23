@@ -8,15 +8,16 @@
  *  be found in the AUTHORS file in the root of the source tree.
  */
 
-#include "../include/libyuv/convert_argb.h"
+#include "libyuv/convert_argb.h"
 
-#include "../include/libyuv/cpu_id.h"
+#include "libyuv/cpu_id.h"
 #ifdef HAVE_JPEG
 #include "libyuv/mjpeg_decoder.h"
 #endif
-#include "../include/libyuv/rotate_argb.h"
-#include "../include/libyuv/row.h"
-#include "../include/libyuv/video_common.h"
+#include "libyuv/planar_functions.h"  // For CopyPlane and ARGBShuffle.
+#include "libyuv/rotate_argb.h"
+#include "libyuv/row.h"
+#include "libyuv/video_common.h"
 
 #ifdef __cplusplus
 namespace libyuv {
